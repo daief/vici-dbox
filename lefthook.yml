@@ -1,0 +1,5 @@
+pre-push:
+  scripts:
+    check-private-branch.js:
+      runner: node
+      use_stdin: true

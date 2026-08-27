@@ -1,0 +1,59 @@
+{
+  "$schema": "https://www.raycast.com/schemas/extension.json",
+  "name": "dbox",
+  "title": "DBox",
+  "description": "dbox - all in one toolkit",
+  "icon": "logo.png",
+  "author": "daief",
+  "categories": [
+    "Developer Tools"
+  ],
+  "license": "MIT",
+  "packageManager": "pnpm@10.34.5",
+  "platforms": [
+    "Linux",
+    "macOS"
+  ],
+  "commands": [
+    {
+      "name": "dbox",
+      "title": "All-in-One",
+      "description": "Dbox All-in-One Entry",
+      "mode": "view"
+    }
+  ],
+  "preferences": [
+    {
+      "name": "codeDir",
+      "title": "Code directory",
+      "description": "Code directory",
+      "type": "textfield",
+      "default": "",
+      "required": false
+    }
+  ],
+  "dependencies": {
+    "@vicinae/api": "^0.26.3",
+    "ahooks": "^3.9.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.17",
+    "@types/react": "^19.2.14",
+    "eslint": "^9.39.4",
+    "lefthook": "^2.1.10",
+    "prettier": "^3.8.3",
+    "typescript": "^7.0.2"
+  },
+  "exports": {
+    ".": "./src/output.ts"
+  },
+  "scripts": {
+    "preinstall": "npx only-allow pnpm",
+    "build": "vici build",
+    "build:dist": "vici build -o dist",
+    "dev": "vici develop",
+    "lint": "vici lint",
+    "typecheck": "tsc --noEmit",
+    "prepare": "lefthook install"
+  }
+}
