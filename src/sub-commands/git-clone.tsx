@@ -3,7 +3,8 @@ import { execFile } from 'child_process';
 import { useMemo, useState } from 'react';
 import { promisify } from 'util';
 import { useRequest } from 'ahooks';
-import { settings, uniq } from '../cmn';
+import { uniq } from 'es-toolkit';
+import { settings } from '../cmn';
 import { ISubCommandConfig } from '../i/command';
 
 const execFileAsync = promisify(execFile);

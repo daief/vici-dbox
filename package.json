@@ -33,8 +33,9 @@
     }
   ],
   "dependencies": {
-    "@vicinae/api": "^0.26.3",
-    "ahooks": "^3.9.7"
+    "@vicinae/api": "^0.27",
+    "ahooks": "^3.9.7",
+    "es-toolkit": "^1.51"
   },
   "devDependencies": {
     "@types/node": "^22.19.17",
@@ -42,7 +43,7 @@
     "eslint": "^9.39.4",
     "lefthook": "^2.1.10",
     "prettier": "^3.8.3",
-    "typescript": "^7.0.2"
+    "typescript": "^5.9"
   },
   "exports": {
     ".": "./src/output.ts"

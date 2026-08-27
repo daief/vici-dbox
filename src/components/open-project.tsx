@@ -3,9 +3,10 @@ import { useMemoizedFn, useRequest } from 'ahooks';
 import * as fs from 'fs/promises';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
-import { settings, uniq, uniqBy, useFuse, useRecentItems } from '../cmn';
+import { settings, useFuse, useRecentItems } from '../cmn';
 import * as path from 'path';
 import { useMemo } from 'react';
+import { uniq, uniqBy } from 'es-toolkit';
 
 const execFileAsync = promisify(execFile);
 const RecentProjectsKey = 'open-project/recent-projects';
@@ -91,11 +92,7 @@ export function OpenProjectCommand({ application, actionTitle }: OpenProjectComm
     items: recentProjects,
     addItem: addRecentProject,
     isIniting: isRecentProjectsIniting,
-  } = useRecentItems<IProjectItem>(
-    RecentProjectsKey,
-    project => project.path,
-    MaxRecentProjectCount,
-  );
+  } = useRecentItems<IProjectItem>(RecentProjectsKey, project => project.path, MaxRecentProjectCount);
 
   const fuse = useFuse(allProjects, { keys: ['name', 'path'] });
   const availableRecentProjects = useMemo(() => {
@@ -134,15 +131,15 @@ export function OpenProjectCommand({ application, actionTitle }: OpenProjectComm
       title={`${project.isWorkspace ? '[📂] ' : ''}${project.name}`}
       subtitle={project.path}
       icon={Icon.Folder}
-      accessories={recentFuse.results.some(recentProject => recentProject.path === project.path) ? [{ icon: Icon.Clock, tooltip: 'Recently opened' }] : []}
+      accessories={
+        recentFuse.results.some(recentProject => recentProject.path === project.path)
+          ? [{ icon: Icon.Clock, tooltip: 'Recently opened' }]
+          : []
+      }
       actions={
         <ActionPanel>
           <Action title={actionTitle} onAction={() => openProject(project)} />
-          <Action.ShowInFinder
-            title="Show In Finder"
-            path={project.path}
-            shortcut={{ modifiers: ['cmd'], key: 'f' }}
-          />
+          <Action.ShowInFinder title="Show In Finder" path={project.path} shortcut={{ modifiers: ['cmd'], key: 'f' }} />
         </ActionPanel>
       }
     />
@@ -158,11 +155,7 @@ export function OpenProjectCommand({ application, actionTitle }: OpenProjectComm
         recentFuse.search(searchText);
       }}
     >
-      {fuse.results.length ? (
-        projects.map(renderProjectItem)
-      ) : (
-        <List.EmptyView title="No projects found" />
-      )}
+      {fuse.results.length ? projects.map(renderProjectItem) : <List.EmptyView title="No projects found" />}
     </List>
   );
 }
