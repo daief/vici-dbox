@@ -1,7 +1,7 @@
 import { useMemoizedFn } from 'ahooks';
 import { useStorage } from './use-storage';
 
-export function useRecentItems<T>(key: string, getKey: (item: T) => string, maxItems = 5) {
+export function useRecentItems<T>(key: string, getKey: (item: T) => string, maxItems = 10) {
   const [items = [], setItems, isIniting] = useStorage<T[]>(key, []);
 
   const addItem = useMemoizedFn((item: T) => {
