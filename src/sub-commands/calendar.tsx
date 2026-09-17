@@ -1,6 +1,7 @@
 import { Action, ActionPanel, Color, Detail, Icon, showToast, Toast } from '@vicinae/api';
+import { useRequest } from 'ahooks';
 import { Solar } from 'lunar-typescript';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { ExpiredStorage } from '../cmn';
 import { ISubCommandConfig } from '../i/command';
@@ -120,29 +121,11 @@ async function getHolidays(year: number): Promise<Holidays> {
 export function CalendarCommand() {
   const currentMonth = useMemo(() => new Date(new Date().getFullYear(), new Date().getMonth(), 1), []);
   const [month, setMonth] = useState(currentMonth);
-  const [holidays, setHolidays] = useState<Holidays>({});
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    setIsLoading(true);
-    getHolidays(month.getFullYear())
-      .then(data => {
-        if (!cancelled) setHolidays(data);
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setHolidays({});
-          showToast({ style: Toast.Style.Failure, title: '节假日数据加载失败', message: '农历日历仍可正常使用' });
-        }
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [month]);
+  const { data: holidays = {}, loading: isLoading } = useRequest(() => getHolidays(month.getFullYear()), {
+    refreshDeps: [month],
+    onError: () =>
+      showToast({ style: Toast.Style.Failure, title: '节假日数据加载失败', message: '农历日历仍可正常使用' }),
+  });
 
   const title = `${month.getFullYear()} 年 ${month.getMonth() + 1} 月`;
   const markdown = `${renderCalendar(month, holidays)}\n\n${isLoading ? '> 正在同步法定节假日与调休安排…' : ''}`;
@@ -201,7 +184,7 @@ export function CalendarCommand() {
 export const calendarCommand: ISubCommandConfig = {
   id: 'calendar',
   title: 'Calendar',
-  subtitle: '日历',
+  subtitle: '',
   icon: Icon.Calendar,
   component: CalendarCommand,
 };
