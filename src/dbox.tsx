@@ -10,6 +10,7 @@ import { quickOpenUrlCommands } from './sub-commands/quick-open-url';
 import { textToFileCommand } from './sub-commands/text-to-file';
 import { pathConverterCommand } from './sub-commands/path-converter';
 import { gitCloneCommand } from './sub-commands/git-clone';
+import { calendarCommand } from './sub-commands/calendar';
 
 const baseMenuItems: ISubCommandConfig[] = [
   openVscodeCommand,
@@ -17,6 +18,7 @@ const baseMenuItems: ISubCommandConfig[] = [
   textToFileCommand,
   pathConverterCommand,
   gitCloneCommand,
+  calendarCommand,
   ...quickOpenUrlCommands,
 ];
 
