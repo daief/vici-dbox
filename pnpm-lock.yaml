@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@vicinae/api':
-        specifier: ^0.27
-        version: 0.27.1(@types/node@22.19.17)
+        specifier: ~0.29
+        version: 0.29.0(@types/node@22.19.17)
       ahooks:
         specifier: ^3.9.7
         version: 3.9.7(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -278,8 +278,8 @@ packages:
   '@types/react@19.2.14':
     resolution: {integrity: sha512-ilcTH/UniCkMdtexkoCN0bI7pMcJDvmQFPvuPvmEaYA/NSfFTAgdUSLAoVjaRJm7+6PvcM+q1zYOwS4wTYMF9w==}
 
-  '@vicinae/api@0.27.1':
-    resolution: {integrity: sha512-GwavweM3+riIzsTfsnLV9HpB7G1ME6BshdUOPedsQJbHbLPRdApNf8maFI1DTSqVwmwNzXxo5+ZVyljTtH0DJA==}
+  '@vicinae/api@0.29.0':
+    resolution: {integrity: sha512-NDXl/oUZkBcO9/YSdR4Q3P9iePmtJDecwYMBiQnL94VsHcOP2+5HayShEjVzcZ3va7+lB5G2bxLeDsMrbwdeiQ==}
     hasBin: true
     peerDependencies:
       '@types/node': '>=18'
@@ -856,7 +856,7 @@ snapshots:
     dependencies:
       csstype: 3.2.3
 
-  '@vicinae/api@0.27.1(@types/node@22.19.17)':
+  '@vicinae/api@0.29.0(@types/node@22.19.17)':
     dependencies:
       '@types/node': 22.19.17
       '@types/react': 19.1.17

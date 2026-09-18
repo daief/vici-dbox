@@ -33,7 +33,7 @@
     }
   ],
   "dependencies": {
-    "@vicinae/api": "^0.27",
+    "@vicinae/api": "~0.29",
     "ahooks": "^3.9.7",
     "es-toolkit": "^1.51",
     "lunar-typescript": "^1.8.6"
