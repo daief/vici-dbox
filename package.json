@@ -9,9 +9,9 @@
     "Developer Tools"
   ],
   "license": "MIT",
-  "packageManager": "pnpm@10.34.5",
+  "packageManager": "pnpm@12.9.0",
   "platforms": [
-    "Linux",
+    "Windows",
     "macOS"
   ],
   "commands": [
