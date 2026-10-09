@@ -9,7 +9,7 @@
     "Developer Tools"
   ],
   "license": "MIT",
-  "packageManager": "pnpm@12.10.1",
+  "packageManager": "pnpm@12",
   "platforms": [
     "Windows",
     "macOS"
@@ -43,7 +43,7 @@
     "@types/react": "^19.2.14",
     "eslint": "^9.39.4",
     "lefthook": "^2.1.10",
-    "prettier": "^3.8.3",
+    "prettier": "^3",
     "typescript": "^5.9"
   },
   "exports": {
