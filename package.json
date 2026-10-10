@@ -9,7 +9,7 @@
     "Developer Tools"
   ],
   "license": "MIT",
-  "packageManager": "pnpm@12",
+  "packageManager": "pnpm@12.10.1",
   "platforms": [
     "Windows",
     "macOS"
