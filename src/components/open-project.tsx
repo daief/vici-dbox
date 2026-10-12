@@ -1,98 +1,28 @@
 import { Action, ActionPanel, getApplications, Icon, List, open } from '@vicinae/api';
 import { useMemoizedFn, useRequest } from 'ahooks';
-import * as fs from 'fs/promises';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
-import { settings, useFuse, useRecentItems } from '../cmn';
-import * as path from 'path';
+import { getWorkspaceFolders, loadCodeProjects, type ILocalProject, useFuse, useRecentItems } from '../cmn';
 import { useMemo } from 'react';
-import { uniq, uniqBy } from 'es-toolkit';
 
 const execFileAsync = promisify(execFile);
 const RecentProjectsKey = 'open-project/recent-projects';
 const MaxRecentProjectCount = 5;
-
-export interface IProjectItem {
-  name: string;
-  path: string;
-  isWorkspace: boolean;
-}
 
 export interface OpenProjectCommandProps {
   application: string;
   actionTitle: string;
 }
 
-interface WorkspaceFolder {
-  path?: string;
-}
-
-interface WorkspaceFile {
-  folders?: WorkspaceFolder[];
-}
-
 const quoteNushellArgument = (value: string) => `'${value.replaceAll("'", "''")}'`;
 
-const getWorkspaceFolders = async (workspacePath: string) => {
-  const workspace = JSON.parse(await fs.readFile(workspacePath, 'utf8')) as WorkspaceFile;
-  const workspaceDir = path.dirname(workspacePath);
-
-  return (workspace.folders || [])
-    .map(folder => folder.path)
-    .filter((folderPath): folderPath is string => Boolean(folderPath))
-    .map(folderPath => (path.isAbsolute(folderPath) ? folderPath : path.resolve(workspaceDir, folderPath)));
-};
-
-const loadProjects = async () => {
-  const workspaceSuffix = '.code-workspace';
-  const roots = uniq(
-    (settings.codeDir || '')
-      .split(',')
-      .map(it => it.trim())
-      .filter(Boolean),
-  );
-  const projects: IProjectItem[] = [];
-  for (const root of roots) {
-    const items = (await fs.readdir(root, { withFileTypes: true }).catch(() => null)) || [];
-    const alloweds = items
-      .filter(item => {
-        if (item.isDirectory()) {
-          return true;
-        }
-
-        if (item.name.endsWith(workspaceSuffix)) {
-          return true;
-        }
-
-        return false;
-      })
-      .map(item => item.name);
-
-    projects.push(
-      ...alloweds.map(dir => ({
-        name: dir.replace(workspaceSuffix, ''),
-        isWorkspace: dir.endsWith(workspaceSuffix),
-        path: path.resolve(root, dir),
-      })),
-    );
-  }
-  return uniqBy(projects, it => it.path).toSorted((a, b) => {
-    if (a.isWorkspace === b.isWorkspace) {
-      return a.name.localeCompare(b.name);
-    }
-
-    return a.isWorkspace ? -1 : 1;
-  });
-};
-
 export function OpenProjectCommand({ application, actionTitle }: OpenProjectCommandProps) {
-  const isZed = application.toLowerCase().includes('zed');
-  const { data: allProjects = [], loading: isLoading } = useRequest(loadProjects);
+  const { data: allProjects = [], loading: isLoading } = useRequest(loadCodeProjects);
   const {
     items: recentProjects,
     addItem: addRecentProject,
     isIniting: isRecentProjectsIniting,
-  } = useRecentItems<IProjectItem>(RecentProjectsKey, project => project.path, MaxRecentProjectCount);
+  } = useRecentItems<ILocalProject>(RecentProjectsKey, project => project.path, MaxRecentProjectCount);
 
   const fuse = useFuse(allProjects, { keys: ['name', 'path'] });
   const availableRecentProjects = useMemo(() => {
@@ -109,10 +39,10 @@ export function OpenProjectCommand({ application, actionTitle }: OpenProjectComm
     return [...recentFuse.results, ...fuse.results.filter(project => !recentPaths.has(project.path))];
   }, [fuse.results, isRecentProjectsIniting, recentFuse.results]);
 
-  const openProject = useMemoizedFn(async (project: IProjectItem) => {
+  const openProject = useMemoizedFn(async (project: ILocalProject) => {
     addRecentProject(project);
 
-    if (isZed && project.isWorkspace) {
+    if (project.isWorkspace) {
       const folders = await getWorkspaceFolders(project.path);
       if (!folders.length) return;
       await execFileAsync('nu', ['-c', `zed ${folders.map(quoteNushellArgument).join(' ')}`]);
@@ -125,7 +55,7 @@ export function OpenProjectCommand({ application, actionTitle }: OpenProjectComm
     }
   });
 
-  const renderProjectItem = (project: IProjectItem) => (
+  const renderProjectItem = (project: ILocalProject) => (
     <List.Item
       key={project.path}
       title={`${project.isWorkspace ? '[📂] ' : ''}${project.name}`}

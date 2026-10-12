@@ -1,9 +1,8 @@
-import { OpenProjectCommand } from '../components/open-project';
-import { Icon } from '@vicinae/api';
+import { OpenZedCommand } from '../components/open-zed';
 import { ISubCommandConfig } from '../i/command';
 
 function Command() {
-  return <OpenProjectCommand application="Zed" actionTitle="Open In Zed" />;
+  return <OpenZedCommand actionTitle="Open In Zed" />;
 }
 
 export const openZedCommand: ISubCommandConfig = {
