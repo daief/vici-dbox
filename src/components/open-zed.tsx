@@ -19,6 +19,13 @@ interface ZedProjectItem extends ILocalProject {
   isRecent: boolean;
 }
 
+/**
+ * 项目身份：根目录集合（排序后）而非首根路径。
+ * 多根 workspace 与独立项目可能共用首根，按路径去重会把独立项目吞掉。
+ */
+const getProjectIdentity = (project: Pick<ZedProjectItem, 'path' | 'extraPaths'>) =>
+  [project.path, ...(project.extraPaths || [])].toSorted().join('\n');
+
 export interface OpenZedCommandProps {
   actionTitle: string;
 }
@@ -29,7 +36,7 @@ export function OpenZedCommand({ actionTitle }: OpenZedCommandProps) {
     items: recentProjects,
     addItem: addRecentProject,
     isIniting: isRecentProjectsIniting,
-  } = useRecentItems<ZedProjectItem>(ZedRecentProjectsKey, project => project.path);
+  } = useRecentItems<ZedProjectItem>(ZedRecentProjectsKey, getProjectIdentity);
 
   const zedProjects = useMemo<ZedProjectItem[]>(
     () =>
@@ -54,20 +61,22 @@ export function OpenZedCommand({ actionTitle }: OpenZedCommandProps) {
   const allProjects = useMemo(() => {
     if (isRecentProjectsIniting) return [];
 
-    // 同路径时以实际目录项为准：dirProjects 先写入 Map，覆盖 zedProjects。
-    const projectsByPath = new Map([...dirProjects, ...zedProjects].map(project => [project.path, project]));
+    // 同身份时以实际目录项为准：dirProjects 后写入 Map，覆盖 zedProjects。
+    const projectsByIdentity = new Map(
+      [...zedProjects, ...dirProjects].map(project => [getProjectIdentity(project), project] as const),
+    );
     const recentItems = recentProjects.flatMap(project => {
-      const currentProject = projectsByPath.get(project.path);
+      const currentProject = projectsByIdentity.get(getProjectIdentity(project));
       return currentProject ? [{ ...currentProject, isRecent: true }] : [];
     });
 
-    const recentPaths = new Set(recentItems.map(project => project.path));
-    // dir 在前，同一路径的 zed 项被淘汰，只保留实际目录项。
-    const seenPaths = new Set(recentPaths);
+    const seenIdentities = new Set(recentItems.map(getProjectIdentity));
+    // dir 在前，同一身份的 zed 项被淘汰，只保留实际目录项。
     const rest = [...dirProjects, ...zedProjects]
       .filter(project => {
-        if (seenPaths.has(project.path)) return false;
-        seenPaths.add(project.path);
+        const identity = getProjectIdentity(project);
+        if (seenIdentities.has(identity)) return false;
+        seenIdentities.add(identity);
         return true;
       })
       .toSorted((a, b) => (a.source === b.source ? a.name.localeCompare(b.name) : a.source === 'dir' ? -1 : 1));
@@ -93,7 +102,7 @@ export function OpenZedCommand({ actionTitle }: OpenZedCommandProps) {
 
   const renderProjectItem = (project: ZedProjectItem) => (
     <List.Item
-      key={project.path}
+      key={getProjectIdentity(project)}
       title={`${project.isWorkspace ? '[📂] ' : ''}${project.name}`}
       subtitle={project.extraPaths?.length ? `${project.path}, ${project.extraPaths.join(', ')}` : project.path}
       keywords={[project.source === 'zed' ? 'zed history' : 'dir']}
